@@ -85,9 +85,10 @@ public class MainActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		// Refresh the list when visible
-		// TODO: Search all
+		EditText et = (EditText) this.findViewById(R.id.editText1);
 		
+		Thread thread = new SearchThread(et.getText().toString());
+		thread.start();
 	}
 
 	/** 
@@ -97,10 +98,12 @@ public class MainActivity extends Activity {
 	public void search(View view) {
 		movies.clear();
 
-		// TODO: Extract search query from text view
+		EditText et = (EditText) this.findViewById(R.id.editText1);
 		
-		// TODO: Run the search thread
-		
+		Thread thread = new SearchThread(et.getText().toString());
+		thread.start();
+
+		//adapter.notifyDataSetChanged();
 	}
 	
 	/**
@@ -125,8 +128,20 @@ public class MainActivity extends Activity {
 
 
 	class SearchThread extends Thread {
-		// TODO: Implement search thread
+		String search;
 		
+		public SearchThread(String search){
+			this.search = search;
+		}
+		
+		@Override
+		public void run(){
+			movies.addAll(movieManager.searchMovies(search, null));
+			//ArrayAdapter<Movie> adapter = new ArrayAdapter<Movie>(mContext, R.layout.list_item, movies);
+			//movieList.setAdapter(adapter);
+			runOnUiThread(doUpdateGUIList);
+			
+		}
 	}
 
 	

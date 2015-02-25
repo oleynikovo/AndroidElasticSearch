@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -67,8 +68,28 @@ public class ESMovieManager implements IMovieManager {
 	 */
 	public List<Movie> searchMovies(String searchString, String field) {
 		List<Movie> result = new ArrayList<Movie>();
+		
+		HttpClient httpClient = new DefaultHttpClient();
+		HttpPost httpPost;
+		try{
+			httpPost = createSearchRequest(searchString, field);
+			HttpResponse response;
 
-		// TODO: Implement search movies using ElasticSearch
+			response = httpClient.execute(httpPost);
+			SearchResponse<Movie> sr = parseSearchResponse(response);
+			Hits<Movie> hits = sr.getHits();
+			for(SearchHit<Movie> m: hits.getHits() ){
+				result.add(m.getSource());
+			}
+		} catch (UnsupportedEncodingException e){
+			throw new RuntimeException(e);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			throw new RuntimeException(e);
+		}
 		
 		return result;
 	}
